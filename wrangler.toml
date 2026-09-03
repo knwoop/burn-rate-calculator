@@ -1,0 +1,8 @@
+name = "burn-rate-calculator"
+main = "src/index.ts"
+compatibility_date = "2025-08-01"
+
+# Uncomment to serve on a custom domain (see README for the steps)
+# routes = [
+#   { pattern = "slo.example.com", custom_domain = true }
+# ]

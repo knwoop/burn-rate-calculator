@@ -183,6 +183,30 @@ td.cond {
   background: #fafbfc;
 }
 
+/* Budget lost as a data bar: the full track is the whole error budget */
+.bar-track {
+  width: 76px;
+  height: 6px;
+  margin: 3px 0 1px auto;
+  background: #dde6f9;
+  border-radius: 3px;
+}
+
+.bar-fill {
+  height: 100%;
+  min-width: 1px;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.silent-row .bar-track {
+  background: #e8ebef;
+}
+
+.silent-row .bar-fill {
+  background: #aeb7c2;
+}
+
 .badge.yes {
   color: var(--ok);
   background: #e5f5ec;

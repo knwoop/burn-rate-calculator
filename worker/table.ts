@@ -33,6 +33,8 @@ export interface Row {
   condition: string;
   threshold: string;
   budget: string;
+  /** Budget lost as a bar width: percent of the whole error budget, capped at 100 */
+  budgetBar: number;
   fires: boolean;
   detection: string;
   reset: string;
@@ -49,6 +51,7 @@ export function buildRows(comp: Computation, ge: string): Row[] {
         condition: condition(r, l, ge),
         threshold: formatPercent(l.threshold),
         budget: formatPercent(l.budgetAtAlert),
+        budgetBar: Math.min(100, l.budgetAtAlert * 100),
         fires: l.detectionMin !== null,
         detection: formatMinutes(l.detectionMin),
         reset: formatMinutes(l.resetMin),

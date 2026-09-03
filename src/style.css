@@ -177,6 +177,12 @@ td.cond {
   border-radius: 999px;
 }
 
+/* Tiers the simulated incident never fires: config info only, so mute them */
+.silent-row td {
+  color: var(--muted);
+  background: #fafbfc;
+}
+
 .badge.yes {
   color: var(--ok);
   background: #e5f5ec;

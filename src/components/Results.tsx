@@ -41,7 +41,7 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
           </thead>
           <tbody>
             {view.rows.map((r, i) => (
-              <tr key={i}>
+              <tr key={i} className={r.fires ? undefined : "silent-row"}>
                 {view.first === "approach" && <td className="num">{r.approach}</td>}
                 {view.first === "tier" && <td className="num">{r.tier}</td>}
                 <td className="cond">{r.condition}</td>
@@ -60,6 +60,7 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
           </tbody>
         </table>
       </div>
+      <p className="note">{view.exhaustionNote}</p>
       {view.showWorkbookTip && (
         <p className="note">
           Tip: with{" "}

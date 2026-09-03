@@ -7,6 +7,7 @@ import { InputError, formatMinutes, formatPercent } from "../worker/calc";
 import { FormValues, compute, readForm, toQuery } from "../worker/params";
 import {
   Column,
+  EXHAUSTION_COLUMN_NOTE,
   FirstColumn,
   Row,
   buildRows,
@@ -25,6 +26,7 @@ export interface ResultView {
   first: FirstColumn;
   columns: Column[];
   rows: Row[];
+  exhaustionNote: string;
   showWorkbookTip: boolean;
   approaches: { approach: number; name: string; caveat: string; recommended: boolean }[];
 }
@@ -44,6 +46,7 @@ export function calculate(fv: FormValues): CalcResult {
         first,
         columns: tableColumns(comp, first),
         rows: buildRows(comp, "≥"),
+        exhaustionNote: EXHAUSTION_COLUMN_NOTE,
         showWorkbookTip: comp.common.periodDays !== 30,
         approaches: comp.results.map((r) => ({
           approach: r.approach,

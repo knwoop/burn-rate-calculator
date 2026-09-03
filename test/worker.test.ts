@@ -41,12 +41,14 @@ describe("GET /calc", () => {
     const res = await get("/calc?approach=6&target=0.999", "application/json");
     expect(res.headers.get("content-type")).toContain("application/json");
     const body = (await res.json()) as {
-      input: { error_budget: number };
+      input: { error_budget: number; error_budget_percent: string };
       approaches: { lines: { threshold: number }[] }[];
     };
-    expect(body.input.error_budget).toBeCloseTo(0.001, 10);
+    // Rounded for JSON output: no 1 - 0.999 = 0.0010000000000000009 noise.
+    expect(body.input.error_budget).toBe(0.001);
+    expect(body.input.error_budget_percent).toBe("0.1%");
     expect(body.approaches[0]!.lines).toHaveLength(3);
-    expect(body.approaches[0]!.lines[0]!.threshold).toBeCloseTo(0.0144, 10);
+    expect(body.approaches[0]!.lines[0]!.threshold).toBe(0.0144);
   });
 
   it("threshold drops to 1/10 when target changes to 99.99", async () => {

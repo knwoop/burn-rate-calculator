@@ -84,7 +84,7 @@ export function tableColumns(comp: Computation, first: FirstColumn): Column[] {
     { label: "Budget lost" },
     { label: "Fires?" },
     { label: "Detection", sub: `@ error_rate=${formatPercent(comp.common.errorRate)}` },
-    { label: "Reset" },
+    { label: "Reset", sub: "after errors stop" },
     { label: "Exhaustion", sub: "@ burn_rate" },
   ];
   if (first === "approach") cols.unshift({ label: "#" });
@@ -118,6 +118,11 @@ export function inputSummary(comp: Computation): string {
     `period=${formatNumber(c.periodDays)}d  error_rate=${formatPercent(c.errorRate)}`
   );
 }
+
+export const EXHAUSTION_COLUMN_NOTE =
+  "Exhaustion @ burn_rate is a property of each tier - how long the budget lasts if the " +
+  "error rate sits exactly at that tier's threshold - whether or not the simulated incident " +
+  "fires it.";
 
 export const WORKBOOK_TIP =
   "Tip: with period=30 the default burn-rate tiers lose exactly 2% / 5% / 10% " +

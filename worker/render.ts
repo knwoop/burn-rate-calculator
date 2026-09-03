@@ -4,6 +4,7 @@
 import { formatMinutes, formatPercent } from "./calc";
 import { Computation } from "./params";
 import {
+  EXHAUSTION_COLUMN_NOTE,
   WORKBOOK_TIP,
   buildRows,
   condition,
@@ -12,6 +13,13 @@ import {
   tableCells,
   tableHead,
 } from "./table";
+
+/** Trims float noise (1 - 0.999 = 0.0010000000000000009) from JSON numbers. */
+function round(v: number): number;
+function round(v: number | null): number | null;
+function round(v: number | null): number | null {
+  return v === null ? null : Number(v.toPrecision(10));
+}
 
 // ---- text/plain ----
 
@@ -35,6 +43,7 @@ export function renderText(comp: Computation): string {
   out.push("-".repeat(widths.reduce((a, b) => a + b + 2, -2)));
   for (const row of rows) out.push(line(row));
   out.push("");
+  out.push(EXHAUSTION_COLUMN_NOTE, "");
   if (comp.common.periodDays !== 30) out.push(WORKBOOK_TIP, "");
   for (const r of comp.results) out.push(`${r.approach}. ${r.name} - ${r.caveat}`);
   out.push("");
@@ -48,11 +57,12 @@ export function renderJson(comp: Computation): unknown {
   return {
     input: {
       target: c.target,
-      error_budget: 1 - c.target,
+      error_budget: round(1 - c.target),
+      error_budget_percent: formatPercent(1 - c.target),
       period_days: c.periodDays,
       error_rate: c.errorRate,
     },
-    budget_exhaustion_minutes: comp.exhaustionMin,
+    budget_exhaustion_minutes: round(comp.exhaustionMin),
     budget_exhaustion: formatMinutes(comp.exhaustionMin),
     approaches: comp.results.map((r) => ({
       approach: r.approach,
@@ -72,16 +82,16 @@ export function renderJson(comp: Computation): unknown {
           for: formatMinutes(l.forMin),
           for_minutes: l.forMin,
         }),
-        threshold: l.threshold,
+        threshold: round(l.threshold),
         threshold_percent: formatPercent(l.threshold),
-        budget_consumed_at_alert: l.budgetAtAlert,
+        budget_consumed_at_alert: round(l.budgetAtAlert),
         budget_consumed_at_alert_percent: formatPercent(l.budgetAtAlert),
         fires: l.detectionMin !== null,
-        detection_minutes: l.detectionMin,
+        detection_minutes: round(l.detectionMin),
         detection: formatMinutes(l.detectionMin),
-        reset_minutes: l.resetMin,
+        reset_minutes: round(l.resetMin),
         reset: formatMinutes(l.resetMin),
-        exhaustion_at_burn_rate_minutes: l.exhaustAtBurnRateMin,
+        exhaustion_at_burn_rate_minutes: round(l.exhaustAtBurnRateMin),
         exhaustion_at_burn_rate: formatMinutes(l.exhaustAtBurnRateMin),
       })),
     })),

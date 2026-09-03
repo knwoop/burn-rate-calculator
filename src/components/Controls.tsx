@@ -64,7 +64,7 @@ export function Controls({ fv, onChange, onTierChange }: ControlsProps) {
       </div>
       <p className="note">
         target accepts 0.999 or 99.9 · error rate is the incident you are simulating (1.0 = full
-        outage) · durations: 10m / 36h / 3d
+        outage) · duration format: 10m, 6h, 3d
       </p>
       <ApproachFields fv={fv} onChange={onChange} onTierChange={onTierChange} />
     </section>

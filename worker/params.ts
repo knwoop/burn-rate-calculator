@@ -63,7 +63,8 @@ export function readForm(q: URLSearchParams): FormValues {
     return undefined;
   };
   return {
-    approach: pick("approach") ?? "6",
+    // Default to the side-by-side comparison: it is the point of the service.
+    approach: pick("approach") ?? "all",
     target: pick("target") ?? "0.999",
     period: pick("period") ?? "28",
     error_rate: pick("error_rate") ?? "1.0",

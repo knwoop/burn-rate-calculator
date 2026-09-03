@@ -194,9 +194,10 @@ describe("computing from a query", () => {
     expect(comp.results.map((r) => r.approach)).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
-  it("defaults are approach=6, target=0.999, period=28, error_rate=1", () => {
+  it("defaults are approach=all, target=0.999, period=28, error_rate=1", () => {
     const comp = compute(readForm(new URLSearchParams("")));
-    expect(comp.approach).toBe("6");
+    expect(comp.approach).toBe("all");
+    expect(comp.results).toHaveLength(6);
     expect(comp.common).toEqual({ target: 0.999, periodDays: 28, errorRate: 1 });
   });
 

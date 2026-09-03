@@ -1,18 +1,58 @@
-// All page logic lives here: form state, derived results, and URL sync.
-// Components under components/ are markup only — they receive data and
-// callbacks from the useCalculator hook and never compute anything.
+// All page logic lives here: form state, URL sync, and deriving everything
+// the page displays. Components under components/ are markup only — they
+// render the view data this module hands them and never compute anything.
 
 import { useEffect, useMemo, useState } from "react";
-import { InputError } from "../worker/calc";
-import { Computation, FormValues, compute, readForm, toQuery } from "../worker/params";
+import { InputError, formatMinutes, formatPercent } from "../worker/calc";
+import { FormValues, compute, readForm, toQuery } from "../worker/params";
+import {
+  Column,
+  FirstColumn,
+  Row,
+  buildRows,
+  firstColumn,
+  inputSummary,
+  tableColumns,
+} from "../worker/table";
 
 export type TierPatch = Partial<{ burn_rate: string; window: string; short_window: string }>;
 
-export type CalcResult = { ok: true; comp: Computation } | { ok: false; error: string };
+/** Everything the results section displays, fully formatted. */
+export interface ResultView {
+  summary: string;
+  errorRatePercent: string;
+  exhaustion: string;
+  first: FirstColumn;
+  columns: Column[];
+  rows: Row[];
+  showWorkbookTip: boolean;
+  approaches: { approach: number; name: string; caveat: string; recommended: boolean }[];
+}
+
+export type CalcResult = { ok: true; view: ResultView } | { ok: false; error: string };
 
 export function calculate(fv: FormValues): CalcResult {
   try {
-    return { ok: true, comp: compute(fv) };
+    const comp = compute(fv);
+    const first = firstColumn(comp);
+    return {
+      ok: true,
+      view: {
+        summary: inputSummary(comp),
+        errorRatePercent: formatPercent(comp.common.errorRate),
+        exhaustion: formatMinutes(comp.exhaustionMin),
+        first,
+        columns: tableColumns(comp, first),
+        rows: buildRows(comp, "≥"),
+        showWorkbookTip: comp.common.periodDays !== 30,
+        approaches: comp.results.map((r) => ({
+          approach: r.approach,
+          name: r.name,
+          caveat: r.caveat,
+          recommended: r.approach === 6,
+        })),
+      },
+    };
   } catch (e) {
     if (e instanceof InputError) return { ok: false, error: e.message };
     throw e;

@@ -1,9 +1,7 @@
-// Result display. Markup only: everything shown here is computed in
-// worker/table.ts (shared with the server) or handed in via props.
+// Result display. Markup only: everything shown here arrives fully
+// formatted in the ResultView built by state.ts.
 
 import { useState } from "react";
-import { formatMinutes, formatPercent } from "../../worker/calc";
-import { buildRows, firstColumn, inputSummary, tableColumns } from "../../worker/table";
 import { CalcResult } from "../state";
 
 export interface ResultsProps {
@@ -21,23 +19,19 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
     );
   }
 
-  const comp = result.comp;
-  const first = firstColumn(comp);
-  const columns = tableColumns(comp, first);
-  const rows = buildRows(comp, "≥");
-
+  const view = result.view;
   return (
     <section className="card">
-      <p className="summary">{inputSummary(comp)}</p>
+      <p className="summary">{view.summary}</p>
       <p>
-        Time to exhaust the budget at error_rate={formatPercent(comp.common.errorRate)}:{" "}
-        <strong>{formatMinutes(comp.exhaustionMin)}</strong>
+        Time to exhaust the budget at error_rate={view.errorRatePercent}:{" "}
+        <strong>{view.exhaustion}</strong>
       </p>
       <div className="table-wrap">
         <table>
           <thead>
             <tr>
-              {columns.map((c) => (
+              {view.columns.map((c) => (
                 <th key={c.label}>
                   {c.label}
                   {c.sub && <span className="th-sub">{c.sub}</span>}
@@ -46,10 +40,10 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
             </tr>
           </thead>
           <tbody>
-            {rows.map((r, i) => (
+            {view.rows.map((r, i) => (
               <tr key={i}>
-                {first === "approach" && <td className="num">{r.approach}</td>}
-                {first === "tier" && <td className="num">{r.tier}</td>}
+                {view.first === "approach" && <td className="num">{r.approach}</td>}
+                {view.first === "tier" && <td className="num">{r.tier}</td>}
                 <td className="cond">{r.condition}</td>
                 <td className="num">{r.threshold}</td>
                 <td className="num">{r.budget}</td>
@@ -66,7 +60,7 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
           </tbody>
         </table>
       </div>
-      {comp.common.periodDays !== 30 && (
+      {view.showWorkbookTip && (
         <p className="note">
           Tip: with{" "}
           <button className="link" onClick={onUseWorkbookPeriod}>
@@ -77,12 +71,12 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
         </p>
       )}
       <ul className="caveats">
-        {comp.results.map((r) => (
-          <li key={r.approach}>
+        {view.approaches.map((a) => (
+          <li key={a.approach}>
             <strong>
-              {r.approach}. {r.name}
+              {a.approach}. {a.name}
             </strong>
-            {r.approach === 6 && <span className="badge rec">recommended</span>} — {r.caveat}
+            {a.recommended && <span className="badge rec">recommended</span>} — {a.caveat}
           </li>
         ))}
       </ul>

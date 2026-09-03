@@ -2,10 +2,10 @@ import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  root: "app",
+  
   plugins: [react()],
   build: {
-    outDir: "../dist/client",
+    outDir: "dist/client",
     emptyOutDir: true,
   },
 });

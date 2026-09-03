@@ -1,5 +1,5 @@
 // Cloudflare Workers entry point. Hono serves the /calc API; the React UI in
-// app/ is built to dist/client and served as static assets by the Workers
+// src/ is built to dist/client and served as static assets by the Workers
 // runtime (see [assets] in wrangler.toml), so "/" never reaches this code in
 // production.
 

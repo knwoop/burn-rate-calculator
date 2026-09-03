@@ -1,5 +1,5 @@
 // Formats computation results as text and JSON for the /calc API.
-// The browser UI is a React app (app/) that shares worker/table.ts.
+// The browser UI is a React app (src/) that shares worker/table.ts.
 
 import { formatMinutes, formatPercent } from "./calc";
 import { Computation } from "./params";

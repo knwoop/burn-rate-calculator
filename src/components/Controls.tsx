@@ -1,6 +1,6 @@
 // Input controls. Markup only: values and change handlers come from props.
 
-import { FormValues } from "../../../worker/params";
+import { FormValues } from "../../worker/params";
 import { TierPatch } from "../state";
 
 const APPROACH_OPTIONS: [string, string][] = [

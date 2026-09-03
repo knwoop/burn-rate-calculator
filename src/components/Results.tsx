@@ -2,8 +2,8 @@
 // worker/table.ts (shared with the server) or handed in via props.
 
 import { useState } from "react";
-import { formatMinutes, formatPercent } from "../../../worker/calc";
-import { buildRows, firstColumn, inputSummary, tableColumns } from "../../../worker/table";
+import { formatMinutes, formatPercent } from "../../worker/calc";
+import { buildRows, firstColumn, inputSummary, tableColumns } from "../../worker/table";
 import { CalcResult } from "../state";
 
 export interface ResultsProps {

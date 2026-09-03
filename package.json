@@ -9,7 +9,7 @@
     "build": "vite build",
     "deploy": "npm run build && wrangler deploy",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit && tsc -p app --noEmit"
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.app.json --noEmit"
   },
   "dependencies": {
     "hono": "^4.6.0",

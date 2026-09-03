@@ -3,8 +3,8 @@
 // callbacks from the useCalculator hook and never compute anything.
 
 import { useEffect, useMemo, useState } from "react";
-import { InputError } from "../../worker/calc";
-import { Computation, FormValues, compute, readForm, toQuery } from "../../worker/params";
+import { InputError } from "../worker/calc";
+import { Computation, FormValues, compute, readForm, toQuery } from "../worker/params";
 
 export type TierPatch = Partial<{ burn_rate: string; window: string; short_window: string }>;
 

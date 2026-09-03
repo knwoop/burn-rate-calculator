@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { CalcResult } from "../state";
 import { BurnChart } from "./BurnChart";
+import { TimesChart } from "./TimesChart";
 
 export interface ResultsProps {
   result: CalcResult;
@@ -63,6 +64,7 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
       </div>
       <p className="note">{view.exhaustionNote}</p>
       <BurnChart model={view.chart} />
+      <TimesChart model={view.timesChart} />
       {view.showWorkbookTip && (
         <p className="note">
           Tip: with{" "}

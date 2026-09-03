@@ -290,6 +290,53 @@ td.cond {
 .chart .pt.c2 { fill: #1baf7a; }
 .chart .pt.c3 { fill: #eda100; }
 .chart .pt.c4 { fill: #e87ba4; }
+/* Detection vs reset dumbbell */
+.chart .row-label {
+  fill: var(--text);
+  font-size: 11px;
+  text-anchor: end;
+  dominant-baseline: middle;
+}
+
+.chart .dumbbell {
+  stroke: #c3cad3;
+  stroke-width: 1.5;
+}
+
+.chart circle.dot {
+  stroke: var(--card);
+  stroke-width: 2;
+}
+
+.chart .dot.det { fill: #2a78d6; }
+.chart .dot.res { fill: #eb6834; }
+
+.chart .dot-sw {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 0.35rem;
+}
+
+.chart .dot-sw.det { background: #2a78d6; }
+.chart .dot-sw.res { background: #eb6834; }
+
+.chart .never-label {
+  fill: var(--muted);
+  font-size: 10.5px;
+  dominant-baseline: middle;
+}
+
+.chart g.silent .row-label {
+  fill: var(--muted);
+}
+
+.chart g.silent .dot.res {
+  fill: #aeb7c2;
+}
+
 .chart .sw.c0 { background: #2a78d6; }
 .chart .sw.c1 { background: #eb6834; }
 .chart .sw.c2 { background: #1baf7a; }

@@ -49,6 +49,81 @@ export interface ChartModel {
   markers: ChartMarker[];
 }
 
+// ---- detection vs reset dumbbell ----
+
+export interface TimesRow {
+  label: string;
+  fires: boolean;
+  detectionMin: number | null;
+  resetMin: number;
+  detail: string;
+}
+
+export interface TimesChartModel {
+  title: string;
+  xMin: number;
+  xMax: number;
+  xTicks: AxisTick[];
+  rows: TimesRow[];
+}
+
+/** Nice tick positions for a log time axis, in minutes. */
+const TIME_LADDER = [
+  1 / 60,
+  10 / 60,
+  1,
+  10,
+  60,
+  6 * 60,
+  24 * 60,
+  3 * 24 * 60,
+  7 * 24 * 60,
+  30 * 24 * 60,
+];
+
+export function buildTimesChart(comp: Computation): TimesChartModel {
+  const rows: TimesRow[] = [];
+  for (const r of comp.results) {
+    r.lines.forEach((l, i) => {
+      const label =
+        comp.approach === "all"
+          ? r.lines.length > 1
+            ? `${r.approach}.${i + 1}`
+            : `${r.approach}`
+          : r.lines.length > 1
+            ? `tier ${i + 1}`
+            : `approach ${r.approach}`;
+      rows.push({
+        label,
+        fires: l.detectionMin !== null,
+        detectionMin: l.detectionMin,
+        resetMin: l.resetMin,
+        detail:
+          l.detectionMin === null
+            ? `never fires at this error rate; reset would take ${formatMinutes(l.resetMin)}`
+            : `detects after ${formatMinutes(l.detectionMin)}, resets ${formatMinutes(l.resetMin)} after errors stop`,
+      });
+    });
+  }
+
+  const values = rows.flatMap((row) =>
+    row.detectionMin === null ? [row.resetMin] : [row.detectionMin, row.resetMin],
+  );
+  const xMin = Math.min(...values) / 1.6;
+  const xMax = Math.max(...values) * 1.4;
+
+  return {
+    title: `Detection (@ error_rate=${formatPercent(comp.common.errorRate)}) vs reset (after errors stop), log time scale`,
+    xMin,
+    xMax,
+    xTicks: TIME_LADDER.filter((v) => v >= xMin && v <= xMax).map((v) => ({
+      v,
+      label: formatMinutes(v),
+    })),
+    rows,
+  };
+}
+
 export function buildChart(comp: Computation): ChartModel {
   const R = comp.common.errorRate;
 

@@ -3,7 +3,7 @@
 
 import { useState } from "react";
 import { formatMinutes, formatPercent } from "../../../worker/calc";
-import { buildRows, firstColumn, inputSummary, tableHead } from "../../../worker/table";
+import { buildRows, firstColumn, inputSummary, tableColumns } from "../../../worker/table";
 import { CalcResult } from "../state";
 
 export interface ResultsProps {
@@ -23,7 +23,7 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
 
   const comp = result.comp;
   const first = firstColumn(comp);
-  const head = tableHead(comp, first);
+  const columns = tableColumns(comp, first);
   const rows = buildRows(comp, "≥");
 
   return (
@@ -37,8 +37,11 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
         <table>
           <thead>
             <tr>
-              {head.map((h) => (
-                <th key={h}>{h}</th>
+              {columns.map((c) => (
+                <th key={c.label}>
+                  {c.label}
+                  {c.sub && <span className="th-sub">{c.sub}</span>}
+                </th>
               ))}
             </tr>
           </thead>

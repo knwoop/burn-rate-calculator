@@ -138,7 +138,7 @@ table {
 th,
 td {
   border: 1px solid var(--border);
-  padding: 0.4rem 0.65rem;
+  padding: 0.4rem 0.55rem;
   text-align: left;
   white-space: nowrap;
 }
@@ -147,6 +147,14 @@ th {
   background: #eef1f5;
   font-weight: 600;
   font-size: 0.82rem;
+  vertical-align: bottom;
+}
+
+.th-sub {
+  display: block;
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: var(--muted);
 }
 
 td.num {
@@ -157,6 +165,8 @@ td.num {
 td.cond {
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 0.82rem;
+  white-space: normal;
+  min-width: 13rem;
 }
 
 .badge {

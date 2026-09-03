@@ -71,19 +71,29 @@ export function firstColumn(comp: Computation): FirstColumn {
   return comp.results[0]!.lines.length > 1 ? "tier" : null;
 }
 
-export function tableHead(comp: Computation, first: FirstColumn): string[] {
-  const head = [
-    "Condition",
-    "Threshold",
-    "Budget lost",
-    "Fires?",
-    `Detection @ error_rate=${formatPercent(comp.common.errorRate)}`,
-    "Reset",
-    "Exhaustion @ burn_rate",
+/** A column header: the label plus an optional assumption shown small in the UI. */
+export interface Column {
+  label: string;
+  sub?: string;
+}
+
+export function tableColumns(comp: Computation, first: FirstColumn): Column[] {
+  const cols: Column[] = [
+    { label: "Condition" },
+    { label: "Threshold" },
+    { label: "Budget lost" },
+    { label: "Fires?" },
+    { label: "Detection", sub: `@ error_rate=${formatPercent(comp.common.errorRate)}` },
+    { label: "Reset" },
+    { label: "Exhaustion", sub: "@ burn_rate" },
   ];
-  if (first === "approach") head.unshift("#");
-  if (first === "tier") head.unshift("Tier");
-  return head;
+  if (first === "approach") cols.unshift({ label: "#" });
+  if (first === "tier") cols.unshift({ label: "Tier" });
+  return cols;
+}
+
+export function tableHead(comp: Computation, first: FirstColumn): string[] {
+  return tableColumns(comp, first).map((c) => (c.sub ? `${c.label} ${c.sub}` : c.label));
 }
 
 export function tableCells(row: Row, first: FirstColumn): string[] {

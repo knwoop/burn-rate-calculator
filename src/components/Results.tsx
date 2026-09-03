@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { CalcResult } from "../state";
+import { BurnChart } from "./BurnChart";
 
 export interface ResultsProps {
   result: CalcResult;
@@ -27,6 +28,7 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
         Time to exhaust the budget at error_rate={view.errorRatePercent}:{" "}
         <strong>{view.exhaustion}</strong>
       </p>
+      <BurnChart model={view.chart} />
       <div className="table-wrap">
         <table>
           <thead>
@@ -46,17 +48,7 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
                 {view.first === "tier" && <td className="num">{r.tier}</td>}
                 <td className="cond">{r.condition}</td>
                 <td className="num">{r.threshold}</td>
-                <td
-                  className="budget-cell"
-                  title={`${r.budget} of the error budget is spent by the time this alert fires (bar lengths are proportional across rows)`}
-                >
-                  <div className="budget-bar">
-                    <span className="bar-area">
-                      <span className="bar-fill" style={{ width: `${r.budgetBar}%` }} />
-                    </span>
-                    <span className="bar-value">{r.budget}</span>
-                  </div>
-                </td>
+                <td className="num">{r.budget}</td>
                 <td>
                   <span className={r.fires ? "badge yes" : "badge no"}>
                     {r.fires ? "fires" : "silent"}

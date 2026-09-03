@@ -3,6 +3,7 @@
 // render the view data this module hands them and never compute anything.
 
 import { useEffect, useMemo, useState } from "react";
+import { ChartModel, buildChart } from "./chart";
 import { InputError, formatMinutes, formatPercent } from "../worker/calc";
 import { FormValues, compute, readForm, toQuery } from "../worker/params";
 import {
@@ -26,6 +27,7 @@ export interface ResultView {
   first: FirstColumn;
   columns: Column[];
   rows: Row[];
+  chart: ChartModel;
   exhaustionNote: string;
   showWorkbookTip: boolean;
   approaches: { approach: number; name: string; caveat: string; recommended: boolean }[];
@@ -46,6 +48,7 @@ export function calculate(fv: FormValues): CalcResult {
         first,
         columns: tableColumns(comp, first),
         rows: buildRows(comp, "≥"),
+        chart: buildChart(comp),
         exhaustionNote: EXHAUSTION_COLUMN_NOTE,
         showWorkbookTip: comp.common.periodDays !== 30,
         approaches: comp.results.map((r) => ({

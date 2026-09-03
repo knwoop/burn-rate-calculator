@@ -183,41 +183,118 @@ td.cond {
   background: #fafbfc;
 }
 
-/* Budget lost as an in-table bar chart: bars share the left baseline and
-   lengths are proportional to the values; the exact number sits to the right */
-td.budget-cell {
-  min-width: 11rem;
+/* Timeline chart: x = time since incident start, y = error rate (log).
+   Series colors are the validated categorical palette (see dataviz skill). */
+.chart {
+  margin: 1rem 0 0.5rem;
 }
 
-.budget-bar {
+.chart figcaption {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+}
+
+.chart .legend {
   display: flex;
-  align-items: center;
-  gap: 0.6rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
 }
 
-.bar-area {
-  display: flex;
-  align-items: center;
-  width: 100px;
-  flex: none;
+.chart .sw {
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  vertical-align: middle;
+  margin-right: 0.35rem;
 }
 
-.bar-fill {
+.chart svg {
   display: block;
-  height: 13px;
-  min-width: 2px;
-  background: var(--accent);
-  border-radius: 0 4px 4px 0;
+  width: 100%;
+  height: auto;
 }
 
-.bar-value {
-  margin-left: auto;
-  font-variant-numeric: tabular-nums;
+.chart .grid {
+  stroke: #e5e9ef;
+  stroke-width: 1;
 }
 
-.silent-row .bar-fill {
-  background: #aeb7c2;
+.chart .tick {
+  fill: var(--muted);
+  font-size: 11px;
 }
+
+.chart .tick.y {
+  text-anchor: end;
+  dominant-baseline: middle;
+}
+
+.chart .tick.x {
+  text-anchor: middle;
+}
+
+.chart .tick.x.first {
+  text-anchor: start;
+}
+
+.chart .tick.x.last {
+  text-anchor: end;
+}
+
+.chart .level {
+  stroke: #b7c0cb;
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+.chart .level.incident {
+  stroke: #8d99a7;
+  stroke-dasharray: 2 3;
+}
+
+.chart .level-label {
+  fill: var(--muted);
+  font-size: 10.5px;
+  dominant-baseline: middle;
+}
+
+.chart path.line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.chart circle.pt {
+  stroke: var(--card);
+  stroke-width: 2;
+}
+
+.chart .pt-label {
+  fill: var(--text);
+  font-size: 11px;
+}
+
+.chart .line.c0 { stroke: #2a78d6; }
+.chart .line.c1 { stroke: #eb6834; }
+.chart .line.c2 { stroke: #1baf7a; }
+.chart .line.c3 { stroke: #eda100; }
+.chart .line.c4 { stroke: #e87ba4; }
+.chart .pt.c0 { fill: #2a78d6; }
+.chart .pt.c1 { fill: #eb6834; }
+.chart .pt.c2 { fill: #1baf7a; }
+.chart .pt.c3 { fill: #eda100; }
+.chart .pt.c4 { fill: #e87ba4; }
+.chart .sw.c0 { background: #2a78d6; }
+.chart .sw.c1 { background: #eb6834; }
+.chart .sw.c2 { background: #1baf7a; }
+.chart .sw.c3 { background: #eda100; }
+.chart .sw.c4 { background: #e87ba4; }
 
 .badge.yes {
   color: var(--ok);

@@ -28,7 +28,6 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
         Time to exhaust the budget at error_rate={view.errorRatePercent}:{" "}
         <strong>{view.exhaustion}</strong>
       </p>
-      <BurnChart model={view.chart} />
       <div className="table-wrap">
         <table>
           <thead>
@@ -63,6 +62,7 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
         </table>
       </div>
       <p className="note">{view.exhaustionNote}</p>
+      <BurnChart model={view.chart} />
       {view.showWorkbookTip && (
         <p className="note">
           Tip: with{" "}

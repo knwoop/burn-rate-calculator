@@ -16,6 +16,24 @@ describe("GET /calc", () => {
     const body = await res.text();
     for (const n of [1, 2, 3, 4, 5, 6]) expect(body).toContain(`\n${n}. `);
     expect(body).toContain("14.4");
+    expect(body).toContain("Detection @ error_rate=100%");
+    expect(body).toContain("Exhaustion @ burn_rate");
+  });
+
+  it("shows a # column only for approach=all and a Tier column for multi-tier approaches", async () => {
+    const all = await get("/calc?approach=all").text();
+    const six = await get("/calc?approach=6").text();
+    const four = await get("/calc?approach=4").text();
+    expect(all).toContain("#  Condition");
+    expect(six).toContain("Tier  Condition");
+    expect(four).toContain("Condition");
+    expect(four).not.toContain("Tier");
+  });
+
+  it("marks non-firing tiers at a partial error rate", async () => {
+    const res = get("/calc?approach=6&error_rate=0.01", "application/json");
+    const body = (await res.json()) as { approaches: { lines: { fires: boolean }[] }[] };
+    expect(body.approaches[0]!.lines.map((l) => l.fires)).toEqual([false, true, true]);
   });
 
   it("returns JSON when Accept is application/json", async () => {

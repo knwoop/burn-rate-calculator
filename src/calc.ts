@@ -32,8 +32,11 @@ export interface AlertLine {
   detectionMin: number | null;
   /** Time until the alert stops firing after the incident is resolved */
   resetMin: number;
-  /** Time to exhaust the budget when burning exactly at burn_rate (approaches 4-6 only) */
-  exhaustAtBurnRateMin?: number;
+  /**
+   * Time to exhaust the budget when burning exactly at this line's burn rate
+   * (period / burn_rate; approaches 1-3 alert at burn rate 1, i.e. the period itself)
+   */
+  exhaustAtBurnRateMin: number;
 }
 
 export interface ApproachResult {
@@ -157,6 +160,7 @@ function thresholdApproach(n: number, c: CommonInput, windowMin: number): Approa
         budgetAtAlert: windowMin / periodMin(c),
         detectionMin: detectionMin(c, E, windowMin),
         resetMin: windowMin,
+        exhaustAtBurnRateMin: periodMin(c),
       },
     ],
   };
@@ -183,6 +187,7 @@ export function approach3(c: CommonInput, windowMin: number, forMin: number): Ap
         // (Workbook: detection time is pinned by the duration).
         detectionMin: c.errorRate >= E ? forMin : null,
         resetMin: windowMin,
+        exhaustAtBurnRateMin: periodMin(c),
       },
     ],
   };
@@ -262,15 +267,36 @@ export function formatNumber(v: number): string {
   return trimZeros(v.toPrecision(2));
 }
 
-/** Formats minutes with a readable unit (s / m / h / d). null means "never". */
+/**
+ * Formats minutes as a readable duration using at most two units
+ * ("2m 10s", "46h 40m", "4d 16h"). Hours are kept up to two days ("36h")
+ * to match the Workbook's notation. null means "never".
+ */
 export function formatMinutes(min: number | null): string {
   if (min === null) return "never";
-  if (min < 1) return `${formatNumber(min * 60)}s`;
-  if (min < 60) return `${formatNumber(min)}m`;
-  // Keep the Workbook's "36h" (= 1.5d) in hours: switch to days only at
-  // 2 days or more, or when the value is an exact multiple of a day.
-  if (min < 2 * MIN_PER_DAY && min % MIN_PER_DAY !== 0) return `${formatNumber(min / 60)}h`;
-  return `${formatNumber(min / MIN_PER_DAY)}d`;
+  const totalSec = min * 60;
+  if (totalSec < 10) return `${formatNumber(totalSec)}s`;
+  if (totalSec < 60) return `${Math.round(totalSec)}s`;
+  const sec = Math.round(totalSec);
+  if (sec >= 2 * 86400 || sec % 86400 === 0) return twoUnits(sec, 86400, "d", 3600, "h");
+  if (sec >= 3600) return twoUnits(sec, 3600, "h", 60, "m");
+  return twoUnits(sec, 60, "m", 1, "s");
+}
+
+function twoUnits(
+  sec: number,
+  bigSec: number,
+  bigUnit: string,
+  smallSec: number,
+  smallUnit: string,
+): string {
+  let big = Math.floor(sec / bigSec);
+  let small = Math.round((sec - big * bigSec) / smallSec);
+  if (small * smallSec >= bigSec) {
+    big += 1;
+    small = 0;
+  }
+  return small === 0 ? `${big}${bigUnit}` : `${big}${bigUnit} ${small}${smallUnit}`;
 }
 
 /** Formats a fraction (0-1) as a percentage. */

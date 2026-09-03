@@ -27,10 +27,12 @@ function condition(r: ApproachResult, l: AlertLine, ge = "≥"): string {
 }
 
 interface Row {
-  approach: string;
+  approach: number;
+  tier: number;
   condition: string;
   threshold: string;
   budget: string;
+  fires: boolean;
   detection: string;
   reset: string;
   exhaustion: string;
@@ -39,33 +41,64 @@ interface Row {
 function buildRows(comp: Computation, ge: string): Row[] {
   const rows: Row[] = [];
   for (const r of comp.results) {
-    for (const l of r.lines) {
+    r.lines.forEach((l, i) => {
       rows.push({
-        approach: String(r.approach),
+        approach: r.approach,
+        tier: i + 1,
         condition: condition(r, l, ge),
         threshold: formatPercent(l.threshold),
         budget: formatPercent(l.budgetAtAlert),
+        fires: l.detectionMin !== null,
         detection: formatMinutes(l.detectionMin),
         reset: formatMinutes(l.resetMin),
-        exhaustion:
-          l.exhaustAtBurnRateMin !== undefined
-            ? formatMinutes(l.exhaustAtBurnRateMin)
-            : formatMinutes(comp.exhaustionMin),
+        exhaustion: formatMinutes(l.exhaustAtBurnRateMin),
       });
-    }
+    });
   }
   return rows;
 }
 
-const TABLE_HEAD = [
-  "#",
-  "Condition",
-  "Threshold",
-  "Budget lost",
-  "Detection",
-  "Reset",
-  "Exhaustion",
-];
+/**
+ * The leading column: the approach number when comparing all approaches,
+ * the tier number for a single multi-tier approach, nothing for a single
+ * single-line approach (it would repeat the same value on every row).
+ */
+type FirstColumn = "approach" | "tier" | null;
+
+function firstColumn(comp: Computation): FirstColumn {
+  if (comp.approach === "all") return "approach";
+  return comp.results[0]!.lines.length > 1 ? "tier" : null;
+}
+
+function tableHead(comp: Computation, first: FirstColumn): string[] {
+  const head = [
+    "Condition",
+    "Threshold",
+    "Budget lost",
+    "Fires?",
+    `Detection @ error_rate=${formatPercent(comp.common.errorRate)}`,
+    "Reset",
+    "Exhaustion @ burn_rate",
+  ];
+  if (first === "approach") head.unshift("#");
+  if (first === "tier") head.unshift("Tier");
+  return head;
+}
+
+function tableCells(row: Row, first: FirstColumn): string[] {
+  const cells = [
+    row.condition,
+    row.threshold,
+    row.budget,
+    row.fires ? "yes" : "no",
+    row.detection,
+    row.reset,
+    row.exhaustion,
+  ];
+  if (first === "approach") cells.unshift(String(row.approach));
+  if (first === "tier") cells.unshift(String(row.tier));
+  return cells;
+}
 
 function inputSummary(comp: Computation): string {
   const c = comp.common;
@@ -75,26 +108,17 @@ function inputSummary(comp: Computation): string {
   );
 }
 
-const EXHAUSTION_NOTE =
-  "Exhaustion: approaches 1-3 show period x E / error_rate (burning at the given error_rate); " +
-  "each row of 4-6 shows period / burn_rate (burning exactly at that burn rate).";
+const WORKBOOK_TIP =
+  "Tip: with period=30 the default burn-rate tiers lose exactly 2% / 5% / 10% " +
+  "of the budget when they fire, reproducing the Workbook's table.";
 
 // ---- text/plain ----
 
 export function renderText(comp: Computation): string {
-  const rows = buildRows(comp, ">=");
-  const cells = (row: Row) => [
-    row.approach,
-    row.condition,
-    row.threshold,
-    row.budget,
-    row.detection,
-    row.reset,
-    row.exhaustion,
-  ];
-  const widths = TABLE_HEAD.map((h, i) =>
-    Math.max(h.length, ...rows.map((r) => cells(r)[i]!.length)),
-  );
+  const first = firstColumn(comp);
+  const head = tableHead(comp, first);
+  const rows = buildRows(comp, ">=").map((r) => tableCells(r, first));
+  const widths = head.map((h, i) => Math.max(h.length, ...rows.map((r) => r[i]!.length)));
   const line = (values: string[]) =>
     values.map((v, i) => v.padEnd(widths[i]!)).join("  ").trimEnd();
 
@@ -106,12 +130,11 @@ export function renderText(comp: Computation): string {
     `Time to exhaust the budget at error_rate=${formatPercent(comp.common.errorRate)}: ${formatMinutes(comp.exhaustionMin)}`,
   );
   out.push("");
-  out.push(line(TABLE_HEAD));
+  out.push(line(head));
   out.push("-".repeat(widths.reduce((a, b) => a + b + 2, -2)));
-  for (const row of rows) out.push(line(cells(row)));
+  for (const row of rows) out.push(line(row));
   out.push("");
-  out.push(EXHAUSTION_NOTE);
-  out.push("");
+  if (comp.common.periodDays !== 30) out.push(WORKBOOK_TIP, "");
   for (const r of comp.results) out.push(`${r.approach}. ${r.name} - ${r.caveat}`);
   out.push("");
   return out.join("\n");
@@ -152,14 +175,13 @@ export function renderJson(comp: Computation): unknown {
         threshold_percent: formatPercent(l.threshold),
         budget_consumed_at_alert: l.budgetAtAlert,
         budget_consumed_at_alert_percent: formatPercent(l.budgetAtAlert),
+        fires: l.detectionMin !== null,
         detection_minutes: l.detectionMin,
         detection: formatMinutes(l.detectionMin),
         reset_minutes: l.resetMin,
         reset: formatMinutes(l.resetMin),
-        ...(l.exhaustAtBurnRateMin !== undefined && {
-          exhaustion_at_burn_rate_minutes: l.exhaustAtBurnRateMin,
-          exhaustion_at_burn_rate: formatMinutes(l.exhaustAtBurnRateMin),
-        }),
+        exhaustion_at_burn_rate_minutes: l.exhaustAtBurnRateMin,
+        exhaustion_at_burn_rate: formatMinutes(l.exhaustAtBurnRateMin),
       })),
     })),
   };
@@ -188,6 +210,7 @@ table { border-collapse: collapse; margin: 1rem 0; width: 100%; }
 th, td { border: 1px solid #bbb; padding: .35rem .6rem; text-align: left; font-size: .9rem; }
 th { background: #f2f2f2; }
 td.num { text-align: right; font-variant-numeric: tabular-nums; }
+td.no { color: #b00020; font-weight: 600; }
 .error { color: #b00020; font-weight: 600; }
 .note, footer { color: #666; font-size: .85rem; }
 code { background: #f2f2f2; padding: .1rem .3rem; border-radius: 3px; }
@@ -245,7 +268,7 @@ function renderForm(fv: FormValues): string {
     <label>Period (days) ${textInput("period", fv.period)}</label>
     <label>Error rate ${textInput("error_rate", fv.error_rate)}</label>
   </p>
-  <p class="note">target accepts 0.999 or 99.9. error_rate 1.0 = full outage. Durations: 10m / 36h / 3d.</p>
+  <p class="note">target accepts 0.999 or 99.9. error_rate is the error rate of the incident you are simulating: 1.0 = full outage. Durations: 10m / 36h / 3d.</p>
   <fieldset data-approach="1"><legend>1. Target error rate &gt;= SLO threshold</legend>
     <label>window ${textInput("a1_window", fv.a1_window)}</label>
   </fieldset>
@@ -272,33 +295,37 @@ function renderForm(fv: FormValues): string {
 }
 
 function renderResultTable(comp: Computation): string {
+  const first = firstColumn(comp);
+  const head = tableHead(comp, first);
   const rows = buildRows(comp, "≥");
   const tr = rows
-    .map(
-      (r) => `<tr>
-      <td class="num">${r.approach}</td>
-      <td>${esc(r.condition)}</td>
-      <td class="num">${esc(r.threshold)}</td>
-      <td class="num">${esc(r.budget)}</td>
-      <td class="num">${esc(r.detection)}</td>
-      <td class="num">${esc(r.reset)}</td>
-      <td class="num">${esc(r.exhaustion)}</td>
-    </tr>`,
-    )
+    .map((r) => {
+      const cells = tableCells(r, first)
+        .map((v, i) => {
+          const isCondition = head[i] === "Condition";
+          const cls = head[i] === "Fires?" && !r.fires ? "no" : isCondition ? "" : "num";
+          return `<td${cls ? ` class="${cls}"` : ""}>${esc(v)}</td>`;
+        })
+        .join("");
+      return `<tr>${cells}</tr>`;
+    })
     .join("\n    ");
   const caveats = comp.results
     .map((r) => `<li><strong>${r.approach}. ${esc(r.name)}</strong> - ${esc(r.caveat)}</li>`)
     .join("\n    ");
+  const tip =
+    comp.common.periodDays !== 30
+      ? `\n  <p class="note">Tip: with <a href="/?approach=${esc(comp.approach)}&amp;period=30">period=30</a> the default burn-rate tiers lose exactly 2% / 5% / 10% of the budget when they fire, reproducing the Workbook's table.</p>`
+      : "";
   return `<h2>Results</h2>
   <p>${esc(inputSummary(comp))}<br>
   Time to exhaust the budget at error_rate=${esc(formatPercent(comp.common.errorRate))}: <strong>${esc(formatMinutes(comp.exhaustionMin))}</strong></p>
   <table>
-    <thead><tr>${TABLE_HEAD.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>
+    <thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>
     <tbody>
     ${tr}
     </tbody>
-  </table>
-  <p class="note">${esc(EXHAUSTION_NOTE)}</p>
+  </table>${tip}
   <ul>
     ${caveats}
   </ul>`;

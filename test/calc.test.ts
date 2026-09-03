@@ -163,6 +163,29 @@ describe("formatting", () => {
     expect(formatMinutes(3 * 1440)).toBe("3d");
     expect(formatMinutes(null)).toBe("never");
   });
+
+  it("uses two units for in-between values", () => {
+    expect(formatMinutes(2.16)).toBe("2m 10s");
+    expect(formatMinutes(51.84 / 60)).toBe("52s");
+    expect(formatMinutes(2800)).toBe("46h 40m");
+    expect(formatMinutes(4.6667 * 1440)).toBe("4d 16h");
+    expect(formatMinutes(40.32)).toBe("40m 19s");
+  });
+});
+
+describe("which tiers fire", () => {
+  it("at error_rate=1% only the tiers whose threshold is below it fire", () => {
+    // thresholds: 14.4xE = 1.44% (no), 6xE = 0.6% (yes), 1xE = 0.1% (yes)
+    const r = approach6({ ...base, errorRate: 0.01 }, WORKBOOK_ROWS);
+    expect(r.lines.map((l) => l.detectionMin !== null)).toEqual([false, true, true]);
+  });
+});
+
+describe("exhaustion at the line's burn rate", () => {
+  it("is the whole period for approaches 1-3 (their burn rate is 1)", () => {
+    const r = approach1(base, 10);
+    expect(r.lines[0]!.exhaustAtBurnRateMin).toBe(28 * 1440);
+  });
 });
 
 describe("computing from a query", () => {

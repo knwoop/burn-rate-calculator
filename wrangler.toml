@@ -1,8 +1,8 @@
 name = "burn-rate-calculator"
-main = "src/index.ts"
+main = "worker/index.ts"
 compatibility_date = "2025-08-01"
 
-# The React UI (web/) is built to dist/client by `npm run build` and served
+# The React UI (app/) is built to dist/client by `npm run build` and served
 # as static assets; only non-asset paths such as /calc reach the Worker.
 [assets]
 directory = "./dist/client"

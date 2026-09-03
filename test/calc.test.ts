@@ -12,8 +12,8 @@ import {
   formatPercent,
   parseDuration,
   parseTarget,
-} from "../src/calc";
-import { compute, readForm } from "../src/params";
+} from "../worker/calc";
+import { compute, readForm } from "../worker/params";
 
 const base: CommonInput = { target: 0.999, periodDays: 28, errorRate: 1 };
 

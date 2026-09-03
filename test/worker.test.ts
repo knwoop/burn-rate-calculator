@@ -1,8 +1,8 @@
 // Integration tests for the /calc API, calling the Hono app directly with
 // Node's Request / Response. "/" is served by static assets (the React UI in
-// web/), so it is not tested here.
+// app/), so it is not tested here.
 import { describe, expect, it } from "vitest";
-import app from "../src/index";
+import app from "../worker/index";
 
 async function get(path: string, accept?: string): Promise<Response> {
   const headers = accept ? { accept } : undefined;

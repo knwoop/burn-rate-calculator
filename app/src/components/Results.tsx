@@ -1,9 +1,9 @@
 // Result display. Markup only: everything shown here is computed in
-// src/table.ts (shared with the server) or handed in via props.
+// worker/table.ts (shared with the server) or handed in via props.
 
 import { useState } from "react";
-import { formatMinutes, formatPercent } from "../../../src/calc";
-import { buildRows, firstColumn, inputSummary, tableHead } from "../../../src/table";
+import { formatMinutes, formatPercent } from "../../../worker/calc";
+import { buildRows, firstColumn, inputSummary, tableHead } from "../../../worker/table";
 import { CalcResult } from "../state";
 
 export interface ResultsProps {

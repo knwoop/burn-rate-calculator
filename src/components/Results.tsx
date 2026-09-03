@@ -50,7 +50,7 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
                   {r.budget}
                   <div
                     className="bar-track"
-                    title={`${r.budget} of the error budget is spent by the time this alert fires (full track = 100%)`}
+                    title={`${r.budget} of the error budget is spent by the time this alert fires (bar lengths are proportional across rows)`}
                   >
                     <div className="bar-fill" style={{ width: `${r.budgetBar}%` }} />
                   </div>

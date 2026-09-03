@@ -33,7 +33,10 @@ export interface Row {
   condition: string;
   threshold: string;
   budget: string;
-  /** Budget lost as a bar width: percent of the whole error budget, capped at 100 */
+  /**
+   * Budget lost as a bar width (0-100), scaled so the largest value in the
+   * table fills the track; lengths are proportional to the values
+   */
   budgetBar: number;
   fires: boolean;
   detection: string;
@@ -43,15 +46,17 @@ export interface Row {
 
 export function buildRows(comp: Computation, ge: string): Row[] {
   const rows: Row[] = [];
+  const budgets: number[] = [];
   for (const r of comp.results) {
     r.lines.forEach((l, i) => {
+      budgets.push(l.budgetAtAlert);
       rows.push({
         approach: r.approach,
         tier: i + 1,
         condition: condition(r, l, ge),
         threshold: formatPercent(l.threshold),
         budget: formatPercent(l.budgetAtAlert),
-        budgetBar: Math.min(100, l.budgetAtAlert * 100),
+        budgetBar: 0, // filled in below once the maximum is known
         fires: l.detectionMin !== null,
         detection: formatMinutes(l.detectionMin),
         reset: formatMinutes(l.resetMin),
@@ -59,6 +64,10 @@ export function buildRows(comp: Computation, ge: string): Row[] {
       });
     });
   }
+  const max = Math.max(...budgets);
+  rows.forEach((row, i) => {
+    row.budgetBar = (budgets[i]! / max) * 100;
+  });
   return rows;
 }
 

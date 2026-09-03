@@ -85,6 +85,49 @@ export function readForm(q: URLSearchParams): FormValues {
   };
 }
 
+/**
+ * Builds the query string that reproduces the given form values, using the
+ * prefixed names so it round-trips through readForm for any approach.
+ * The browser UI uses it for the address bar and the curl example.
+ */
+export function toQuery(fv: FormValues): string {
+  const q = new URLSearchParams();
+  q.set("approach", fv.approach);
+  q.set("target", fv.target);
+  q.set("period", fv.period);
+  q.set("error_rate", fv.error_rate);
+  switch (fv.approach) {
+    case "1":
+      q.set("a1_window", fv.a1_window);
+      break;
+    case "2":
+      q.set("a2_window", fv.a2_window);
+      break;
+    case "3":
+      q.set("a3_window", fv.a3_window);
+      q.set("a3_for", fv.a3_for);
+      break;
+    case "4":
+      q.set("a4_burn_rate", fv.a4_burn_rate);
+      q.set("a4_window", fv.a4_window);
+      break;
+    case "5":
+      fv.a5.forEach((r, i) => {
+        q.set(`a5_burn_rate${i + 1}`, r.burn_rate);
+        q.set(`a5_window${i + 1}`, r.window);
+      });
+      break;
+    case "6":
+      fv.a6.forEach((r, i) => {
+        q.set(`a6_burn_rate${i + 1}`, r.burn_rate);
+        q.set(`a6_window${i + 1}`, r.window);
+        if (r.short_window !== "") q.set(`a6_short_window${i + 1}`, r.short_window);
+      });
+      break;
+  }
+  return q.toString();
+}
+
 export interface Computation {
   common: CommonInput;
   /** "1"-"6" or "all" */

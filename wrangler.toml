@@ -2,6 +2,11 @@ name = "burn-rate-calculator"
 main = "src/index.ts"
 compatibility_date = "2025-08-01"
 
+# The React UI (web/) is built to dist/client by `npm run build` and served
+# as static assets; only non-asset paths such as /calc reach the Worker.
+[assets]
+directory = "./dist/client"
+
 # Uncomment to serve on a custom domain (see README for the steps)
 # routes = [
 #   { pattern = "slo.example.com", custom_domain = true }

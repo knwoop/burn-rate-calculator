@@ -183,24 +183,36 @@ td.cond {
   background: #fafbfc;
 }
 
-/* Budget lost as a data bar: the full track is the whole error budget */
-.bar-track {
-  width: 76px;
-  height: 6px;
-  margin: 3px 0 1px auto;
-  background: #dde6f9;
-  border-radius: 3px;
+/* Budget lost as an in-table bar chart: bars share the left baseline and
+   lengths are proportional to the values; the exact number sits to the right */
+td.budget-cell {
+  min-width: 11rem;
+}
+
+.budget-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.bar-area {
+  display: flex;
+  align-items: center;
+  width: 100px;
+  flex: none;
 }
 
 .bar-fill {
-  height: 100%;
-  min-width: 1px;
+  display: block;
+  height: 13px;
+  min-width: 2px;
   background: var(--accent);
-  border-radius: 0 3px 3px 0;
+  border-radius: 0 4px 4px 0;
 }
 
-.silent-row .bar-track {
-  background: #e8ebef;
+.bar-value {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
 }
 
 .silent-row .bar-fill {

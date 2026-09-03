@@ -46,13 +46,15 @@ export function Results({ result, calcUrl, onUseWorkbookPeriod }: ResultsProps) 
                 {view.first === "tier" && <td className="num">{r.tier}</td>}
                 <td className="cond">{r.condition}</td>
                 <td className="num">{r.threshold}</td>
-                <td className="num">
-                  {r.budget}
-                  <div
-                    className="bar-track"
-                    title={`${r.budget} of the error budget is spent by the time this alert fires (bar lengths are proportional across rows)`}
-                  >
-                    <div className="bar-fill" style={{ width: `${r.budgetBar}%` }} />
+                <td
+                  className="budget-cell"
+                  title={`${r.budget} of the error budget is spent by the time this alert fires (bar lengths are proportional across rows)`}
+                >
+                  <div className="budget-bar">
+                    <span className="bar-area">
+                      <span className="bar-fill" style={{ width: `${r.budgetBar}%` }} />
+                    </span>
+                    <span className="bar-value">{r.budget}</span>
                   </div>
                 </td>
                 <td>

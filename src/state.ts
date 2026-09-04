@@ -4,7 +4,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { ChartModel, TimesChartModel, buildChart, buildTimesChart } from "./chart";
-import { InputError, formatMinutes, formatPercent } from "../worker/calc";
+import {
+  InputError,
+  MIN_PER_DAY,
+  formatMinutes,
+  formatPercent,
+  parseDuration,
+  parsePositiveNumber,
+} from "../worker/calc";
 import { FormValues, compute, readForm, toQuery } from "../worker/params";
 import {
   Column,
@@ -74,6 +81,26 @@ export interface Calculator {
   calcUrl: string;
   set: (patch: Partial<FormValues>) => void;
   setTier: (approach: "5" | "6", index: number, patch: TierPatch) => void;
+  /**
+   * Fills each tier's burn rate so the tiers spend 2% / 5% / 10% of the error
+   * budget when they fire (the Workbook's recommendation), derived from the
+   * current period and each tier's window: burn_rate = spend × period ÷ window.
+   */
+  fillRecommendedTiers: (approach: "5" | "6") => void;
+}
+
+/** The Workbook's recommended budget spend per tier when the alert fires. */
+const TIER_BUDGET_SPENDS = [0.02, 0.05, 0.1];
+
+function recommendedBurnRate(spend: number, periodMin: number, windowRaw: string): string | null {
+  try {
+    const v = (spend * periodMin) / parseDuration(windowRaw);
+    const s = v.toPrecision(4);
+    return s.includes(".") ? s.replace(/0+$/, "").replace(/\.$/, "") : s;
+  } catch (e) {
+    if (e instanceof InputError) return null;
+    throw e;
+  }
 }
 
 export function useCalculator(): Calculator {
@@ -94,6 +121,21 @@ export function useCalculator(): Calculator {
         ? { ...v, a5: v.a5.map((r, i) => (i === index ? { ...r, ...patch } : r)) }
         : { ...v, a6: v.a6.map((r, i) => (i === index ? { ...r, ...patch } : r)) },
     );
+  const fillRecommendedTiers = (approach: "5" | "6") =>
+    setFv((v) => {
+      let periodMin: number;
+      try {
+        periodMin = parsePositiveNumber(v.period, "period") * MIN_PER_DAY;
+      } catch (e) {
+        if (e instanceof InputError) return v;
+        throw e;
+      }
+      const fill = <T extends { burn_rate: string; window: string }>(r: T, i: number): T => {
+        const burn = recommendedBurnRate(TIER_BUDGET_SPENDS[i] ?? 0.1, periodMin, r.window);
+        return burn === null ? r : { ...r, burn_rate: burn };
+      };
+      return approach === "5" ? { ...v, a5: v.a5.map(fill) } : { ...v, a6: v.a6.map(fill) };
+    });
 
   return {
     fv,
@@ -101,5 +143,6 @@ export function useCalculator(): Calculator {
     calcUrl: `${window.location.origin}/calc?${toQuery(fv)}`,
     set,
     setTier,
+    fillRecommendedTiers,
   };
 }

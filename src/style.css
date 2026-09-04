@@ -395,18 +395,26 @@ button.link {
   white-space: nowrap;
 }
 
-.curl button {
+.curl button,
+button.secondary {
   border: 1px solid var(--border);
   background: #fff;
   border-radius: 6px;
   padding: 0.35rem 0.9rem;
   font-size: 0.85rem;
   cursor: pointer;
+  color: var(--text);
 }
 
-.curl button:hover {
+.curl button:hover,
+button.secondary:hover {
   border-color: var(--accent);
   color: var(--accent);
+}
+
+button.secondary {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.8rem;
 }
 
 footer {

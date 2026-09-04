@@ -20,7 +20,12 @@ export function App() {
           .
         </p>
       </header>
-      <Controls fv={calc.fv} onChange={calc.set} onTierChange={calc.setTier} />
+      <Controls
+        fv={calc.fv}
+        onChange={calc.set}
+        onTierChange={calc.setTier}
+        onFillTiers={calc.fillRecommendedTiers}
+      />
       <Results
         result={calc.result}
         calcUrl={calc.calcUrl}

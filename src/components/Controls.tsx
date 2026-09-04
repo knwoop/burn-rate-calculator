@@ -17,6 +17,7 @@ export interface ControlsProps {
   fv: FormValues;
   onChange: (patch: Partial<FormValues>) => void;
   onTierChange: (approach: "5" | "6", index: number, patch: TierPatch) => void;
+  onFillTiers: (approach: "5" | "6") => void;
 }
 
 function Field({
@@ -38,7 +39,7 @@ function Field({
   );
 }
 
-export function Controls({ fv, onChange, onTierChange }: ControlsProps) {
+export function Controls({ fv, onChange, onTierChange, onFillTiers }: ControlsProps) {
   return (
     <section className="card">
       <div className="row">
@@ -66,12 +67,35 @@ export function Controls({ fv, onChange, onTierChange }: ControlsProps) {
         target accepts 0.999 or 99.9 · error rate is the incident you are simulating (1.0 = full
         outage) · duration format: 10m, 6h, 3d
       </p>
-      <ApproachFields fv={fv} onChange={onChange} onTierChange={onTierChange} />
+      <ApproachFields
+        fv={fv}
+        onChange={onChange}
+        onTierChange={onTierChange}
+        onFillTiers={onFillTiers}
+      />
     </section>
   );
 }
 
-function ApproachFields({ fv, onChange, onTierChange }: ControlsProps) {
+function FillTiersButton({
+  approach,
+  onFillTiers,
+}: {
+  approach: "5" | "6";
+  onFillTiers: (approach: "5" | "6") => void;
+}) {
+  return (
+    <p className="note">
+      <button type="button" className="secondary" onClick={() => onFillTiers(approach)}>
+        Fill burn rates from SLO
+      </button>{" "}
+      — sets each tier to spend 2% / 5% / 10% of the budget when it fires (the Workbook's
+      recommendation), from the period and windows above.
+    </p>
+  );
+}
+
+function ApproachFields({ fv, onChange, onTierChange, onFillTiers }: ControlsProps) {
   switch (fv.approach) {
     case "1":
       return (
@@ -121,6 +145,7 @@ function ApproachFields({ fv, onChange, onTierChange }: ControlsProps) {
               />
             </div>
           ))}
+          <FillTiersButton approach="5" onFillTiers={onFillTiers} />
         </>
       );
     case "6":
@@ -147,6 +172,8 @@ function ApproachFields({ fv, onChange, onTierChange }: ControlsProps) {
               />
             </div>
           ))}
+          <p className="note">Leave short_window empty to use window/12.</p>
+          <FillTiersButton approach="6" onFillTiers={onFillTiers} />
         </>
       );
     default:

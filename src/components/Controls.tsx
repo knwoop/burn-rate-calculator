@@ -160,19 +160,19 @@ function ApproachFields({ fv, onChange, onTierChange, onFillTiers }: ControlsPro
                 onChange={(v) => onTierChange("6", i, { burn_rate: v })}
               />
               <Field
-                label="window"
+                label="long_window"
                 value={tier.window}
                 onChange={(v) => onTierChange("6", i, { window: v })}
               />
               <Field
                 label="short_window"
                 value={tier.short_window}
-                placeholder="window/12"
+                placeholder="long_window/12"
                 onChange={(v) => onTierChange("6", i, { short_window: v })}
               />
             </div>
           ))}
-          <p className="note">Leave short_window empty to use window/12.</p>
+          <p className="note">Leave short_window empty to use long_window/12.</p>
           <FillTiersButton approach="6" onFillTiers={onFillTiers} />
         </>
       );
